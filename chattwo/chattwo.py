@@ -1,4 +1,5 @@
 import datetime
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 
@@ -47,16 +48,15 @@ class ChatRoomPage(webapp.RequestHandler):
         </html>
         """)
 
-
-def post(self):
-    chatter = self.request.get("name")
-    msg = self.request.get("message")
-    global Messages
-    Messages.append(ChatMessage(chatter, msg))
-    # Now that we've added the message to the chat, we'll redirect
-    # to the root page, which will make the user's browser refresh to
-    # show the chat including their new message.
-    self.redirect('/')
+    def post(self):
+        chatter = self.request.get("name")
+        msg = self.request.get("message")
+        global Messages
+        Messages.append(ChatMessage(chatter, msg))
+        # Now that we've added the message to the chat, we'll redirect
+        # to the root page, which will make the user's browser refresh to
+        # show the chat including their new message.
+        self.redirect('/')
 
 
 chatapp = webapp.WSGIApplication([('/', ChatRoomPage)])
