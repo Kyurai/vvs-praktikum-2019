@@ -4,10 +4,15 @@ runtime: python27
 api_version: 1
 threadsafe: no
 
+inbound_services:
+  - mail
+
 handlers:
   #- url: /favicon\.ico
   #  static_files: favicon.ico
   #  upload: favicon\.ico
-
+  - url: /_ah/mail/.+
+    script: mail.py
   - url: /.*
     script: pchat.py
+

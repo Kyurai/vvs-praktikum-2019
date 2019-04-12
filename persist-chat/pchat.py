@@ -1,7 +1,9 @@
 import datetime
 
+from google.appengine.api import mail
 from google.appengine.ext import db
 from google.appengine.ext import webapp
+from google.appengine.ext.webapp.mail_handlers import InboundMailHandler
 from google.appengine.ext.webapp.util import run_wsgi_app
 
 
@@ -117,6 +119,38 @@ class ChatRoomTimeViewPage(webapp.RequestHandler):
         """)
 
 
+class ChatRoomEmailViewPage(webapp.RequestHandler):
+    def get(self):
+        mail.send_mail("chat@vvs-praktikum-2019.appspotmail.com", "dustin.hellmann@alumni.fh-aachen.de",
+                       "Hi Dustin!", "I'm still running")
+        self.response.headers["Content-Type"] = "text/html"
+        self.response.out.write("""
+            <html>
+                <head>
+                    <title>Dustin's AppEngine Chat Room</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
+                </head>
+                <body>
+                    <h1>An Email was sent to the administrator!</h1>
+                    <p>(Current time is %s)</p>
+                    <p>(Server started at %s)</p>
+                    """ % (datetime.datetime.now(), startTimestamp))
+        self.response.out.write("""
+                </body>
+            </html>
+        """)
+
+
+class ChatMailHandler(InboundMailHandler):
+    def receive(self, mail_message):
+        mail.send_mail(sender="admin@vvs-praktikum-2019.appspotmail.com",
+                       to="dustin.hellmann@alumni.fh-aachen.de",
+                       subject="CHAT ADMIN MAIL: %s" % mail_message.subject,
+                       body="Original message from: %s\n%s" %
+                            (mail_message.sender,
+                             mail_message.body))
+
+
 class ChatRoomPoster(webapp.RequestHandler):
     def post(self):
         chatter = self.request.get("name")
@@ -129,7 +163,8 @@ class ChatRoomPoster(webapp.RequestHandler):
 chatapp = webapp.WSGIApplication([('/', ChatRoomPage),
                                   ('/talk', ChatRoomPoster),
                                   ('/limited/count', ChatRoomCountViewPage),
-                                  ('/limited/time', ChatRoomTimeViewPage)])
+                                  ('/limited/time', ChatRoomTimeViewPage),
+                                  ('/email', ChatRoomEmailViewPage)])
 
 
 def main():
